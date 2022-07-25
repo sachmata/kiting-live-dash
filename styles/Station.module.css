@@ -1,8 +1,15 @@
 .container {
     padding: 2rem;
+    height: 100vh;
 }
 
 .windSpeed {
     text-align: center;
-    font-size: 30vw;
+    font-size: 30vh;
+}
+
+.windSpeed span {
+    color: #9c9c9c;
+    font-size: 50%;
+    padding-left: 0.3em;
 }

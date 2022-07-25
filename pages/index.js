@@ -1,9 +1,10 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import kitingApi from "../kiting-api";
 import styles from "../styles/Home.module.css";
 
-export default function Home() {
+export default function Home({ stations }) {
     return (
         <div className={styles.container}>
             <Head>
@@ -17,11 +18,27 @@ export default function Home() {
                 <p className={styles.description}>Pick a station bellow</p>
 
                 <div className={styles.grid}>
-                    <Link href={"/station/20111"}>
-                        <a>Gokceada, Volkite Kiteschool</a>
-                    </Link>
+                    <ul>
+                        {stations?.map(({ id, name }) => (
+                            <li key={id}>
+                                <Link href={`/station/${id}`}>
+                                    <a>{name}</a>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </main>
         </div>
     );
+}
+
+export async function getStaticProps() {
+    const stations = await kitingApi.list();
+
+    return {
+        props: {
+            stations,
+        },
+    };
 }

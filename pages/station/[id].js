@@ -6,8 +6,9 @@ import Head from "next/head";
 import styles from "../../styles/Station.module.css";
 
 import usePoll from "../../components/use-poll";
+import kitingApi from "../../kiting-api";
 
-export default function Station() {
+export default function Station({ station }) {
     const router = useRouter();
 
     const { id } = router.query;
@@ -30,10 +31,39 @@ export default function Station() {
     return (
         <div className={styles.container}>
             <Head>
-                <title>kiting.live dash - {id}</title>
+                <title>{`kiting.live dash - ${id ?? ""}`}</title>
             </Head>
 
-            <h2 className={styles.windSpeed}>{data?.windSpeedKnots ?? "--"}</h2>
+            <h1 className={styles.name}>{station.name}</h1>
+            <h2 className={styles.windSpeed}>
+                {data?.windSpeedKnots ?? "--"}
+                <span>kt</span>
+            </h2>
         </div>
     );
+}
+
+export async function getStaticPaths() {
+    const stations = await kitingApi.list();
+
+    return {
+        paths: stations.map(({ id }) => ({ params: { id: `${id}` } })),
+        fallback: "blocking",
+    };
+}
+
+export async function getStaticProps({ params }) {
+    let station = await kitingApi.get(Number(params?.id));
+
+    if (!station) {
+        return {
+            notFound: true,
+        };
+    }
+
+    return {
+        props: {
+            station,
+        },
+    };
 }
