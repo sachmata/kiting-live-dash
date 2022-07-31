@@ -14,15 +14,21 @@ async function exists(path) {
     }
 }
 
+let _stations = null;
+
 const fetchStations = async () => {
+    if (_stations) {
+        return _stations;
+    }
+
     const res = await fetch("https://kiting.live/api/weather-stations");
     if (!res.ok) {
         throw new Error(res.statusText);
     }
 
-    const stations = await res.json();
+    _stations = await res.json();
 
-    return stations;
+    return _stations;
 };
 
 const listStations = async () => {

@@ -16,7 +16,7 @@ export default function Station({ station }) {
     const [data, setData] = useState(null);
 
     const pollCb = useCallback(async () => {
-        const apiRes = await fetch(`/api/station/${id}`);
+        const apiRes = await fetch(`/api/kiting-live/observations/latest/${id}`);
 
         if (!apiRes.ok) {
             setData(null);
