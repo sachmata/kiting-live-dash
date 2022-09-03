@@ -22,14 +22,16 @@ const WIND_DIRECTION_CODE = [
 
 const WIND_DIRECTION_SECTOR = 360 / WIND_DIRECTION_CODE.length
 
-export default function WindCompass({ directionDegrees }) {
-    const windCode = useMemo(() => {
-        const direction = ((directionDegrees ?? 0) + WIND_DIRECTION_SECTOR / 2) % 360
-        const index = Math.round(direction / WIND_DIRECTION_SECTOR)
-        const code = WIND_DIRECTION_CODE[index]
+export function windDirectionCode(degrees) {
+    const direction = ((degrees ?? 0) + WIND_DIRECTION_SECTOR / 2) % 360
+    const index = Math.round(direction / WIND_DIRECTION_SECTOR)
+    const code = WIND_DIRECTION_CODE[index]
 
-        return code
-    }, [directionDegrees])
+    return code
+}
+
+export default function WindCompass({ directionDegrees }) {
+    const windCode = useMemo(() => windDirectionCode(directionDegrees), [directionDegrees])
 
     return (
         <div className="compass">

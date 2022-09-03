@@ -6,6 +6,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    overflow: hidden;
 }
 
 .container h1 {
@@ -15,7 +17,7 @@
 
 .windSpeed {
     text-align: center;
-    font-size: 30vh;
+    font-size: 25vh;
     margin: 0;
 }
 

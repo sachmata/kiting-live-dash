@@ -19,12 +19,13 @@ export default function Station({ station }) {
     const pollCb = useCallback(async () => {
         const apiRes = await fetch(`/api/kiting-live/observations/latest/${id}`)
 
-        if (!apiRes.ok) {
-            setData(null)
-        } else {
-            const apiData = await apiRes.json()
-            setData(apiData)
+        let apiData = null
+        if (apiRes.ok) {
+            try {
+                apiData = await apiRes.json()
+            } catch {}
         }
+        setData(apiData)
     }, [id])
 
     usePoll(pollCb, 5e3)
@@ -35,18 +36,18 @@ export default function Station({ station }) {
                 <title>{`kiting.live dash - ${id ?? ''}`}</title>
             </Head>
 
-            <h1 className={styles.name}>{station.name}</h1>
+            {/* <h1 className={styles.name}>{station.name}</h1> */}
 
             <WindCompass directionDegrees={data?.windDirectionDegrees} />
 
             <h2 className={styles.windSpeed}>
-                {data?.windSpeedKnots?.toFixed(2) ?? '--'}
+                {data?.windSpeedKnots?.toFixed(1) ?? '--'}
                 <span>kt</span>
             </h2>
 
             <h3 className={styles.gustSpeed}>
                 <span>Gust</span>
-                {data?.windGustKnots?.toFixed(2) ?? '--'}
+                {data?.windGustKnots?.toFixed(1) ?? '--'}
                 <span>kt</span>
             </h3>
         </div>
@@ -54,7 +55,12 @@ export default function Station({ station }) {
 }
 
 export async function getStaticPaths() {
-    const stations = await kitingApi.list()
+    let stations = []
+    try {
+        stations = await kitingApi.list()
+    } catch (ex) {
+        console.error('Unable to list stations', ex)
+    }
 
     return {
         paths: stations.map(({ id }) => ({ params: { id: `${id}` } })),
@@ -63,7 +69,12 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-    let station = await kitingApi.get(Number(params?.id))
+    let station = null
+    try {
+        station = await kitingApi.get(Number(params?.id))
+    } catch (ex) {
+        console.error('Unable to get station', ex)
+    }
 
     if (!station) {
         return {

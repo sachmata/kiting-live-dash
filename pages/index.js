@@ -1,8 +1,8 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
-import kitingApi from "../kiting-api";
-import styles from "../styles/Home.module.css";
+import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
+import kitingApi from '../kiting-api'
+import styles from '../styles/Home.module.css'
 
 export default function Home({ stations }) {
     return (
@@ -30,15 +30,20 @@ export default function Home({ stations }) {
                 </div>
             </main>
         </div>
-    );
+    )
 }
 
 export async function getStaticProps() {
-    const stations = await kitingApi.list();
+    let stations = []
+    try {
+        stations = await kitingApi.list()
+    } catch (ex) {
+        console.error('Unable to list stations', ex)
+    }
 
     return {
         props: {
             stations,
         },
-    };
+    }
 }
