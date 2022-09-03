@@ -50,6 +50,8 @@ export default function Station({ station }) {
                 {data?.windGustKnots?.toFixed(1) ?? '--'}
                 <span>kt</span>
             </h3>
+
+            <p>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
         </div>
     )
 }
