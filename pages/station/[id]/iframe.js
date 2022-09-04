@@ -47,7 +47,7 @@ export default function Station({ station }) {
                 <span>kt</span>
             </h3>
 
-            <p>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
+            <p className={styles.timestamp}>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
         </div>
     )
 }
