@@ -3,29 +3,26 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
-import styles from '../../styles/Station.module.css'
+import styles from '../../../styles/Station.module.css'
 
-import usePoll from '../../components/use-poll'
-import kitingApi from '../../kiting-api'
-import WindCompass from '../../components/wind-compass'
+import usePoll from '../../../components/use-poll'
+import kitingApi from '../../../kiting-api'
+import WindCompass from '../../../components/wind-compass'
 
 export default function Station({ station }) {
     const router = useRouter()
-
     const { id } = router.query
 
     const [data, setData] = useState(null)
 
     const pollCb = useCallback(async () => {
-        const apiRes = await fetch(`/api/kiting-live/observations/latest/${id}`)
-
-        let apiData = null
-        if (apiRes.ok) {
-            try {
-                apiData = await apiRes.json()
-            } catch {}
-        }
-        setData(apiData)
+        try {
+            const apiRes = await fetch(`/api/kiting-live/observations/latest/${id}`)
+            if (apiRes.ok) {
+                const apiData = await apiRes.json()
+                setData(apiData)
+            }
+        } catch {}
     }, [id])
 
     usePoll(pollCb, 5e3)
@@ -33,7 +30,7 @@ export default function Station({ station }) {
     return (
         <div className={styles.container}>
             <Head>
-                <title>{`kiting.live dash - ${id ?? ''}`}</title>
+                <title>{`kiting.live dash - ${station?.name ?? id ?? ''}`}</title>
             </Head>
 
             {/* <h1 className={styles.name}>{station.name}</h1> */}
@@ -51,7 +48,7 @@ export default function Station({ station }) {
                 <span>kt</span>
             </h3>
 
-            <p>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
+            <p className={styles.timestamp}>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
         </div>
     )
 }
