@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
+import CryptoJS from 'crypto-js'
 
 import { useRouter } from 'next/router'
 import Head from 'next/head'
@@ -9,6 +10,8 @@ import usePoll from '../../../components/use-poll'
 import kitingApi from '../../../kiting-api'
 import WindCompass from '../../../components/wind-compass'
 
+const AES_KEY = CryptoJS.enc.Base64.parse('cU81RFoyR00zSlc3TVpPUQ==')
+
 export default function Station({ station }) {
     const router = useRouter()
     const { id } = router.query
@@ -17,12 +20,19 @@ export default function Station({ station }) {
 
     const pollCb = useCallback(async () => {
         try {
-            const apiRes = await fetch(`/api/kiting-live/observations/latest/${id}`)
+            const apiRes = await fetch(`/api/kiting-live/observations/latest/v2/${id}`)
             if (apiRes.ok) {
-                const apiData = await apiRes.json()
-                setData(apiData)
+                const apiData = await apiRes.text()
+
+                const ciphertext = CryptoJS.enc.Base64.parse(apiData)
+                const wordArray = CryptoJS.AES.decrypt({ ciphertext }, AES_KEY, { mode: CryptoJS.mode.ECB })
+                const _apiData = JSON.parse(wordArray.toString(CryptoJS.enc.Utf8))
+
+                setData(_apiData)
             }
-        } catch {}
+        } catch (err) {
+            console.error(err)
+        }
     }, [id])
 
     usePoll(pollCb, 5e3)
