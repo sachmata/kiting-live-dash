@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import CryptoJS from 'crypto-js'
+import clsx from 'clsx'
 
 import { useRouter } from 'next/router'
 import Head from 'next/head'
@@ -12,6 +13,9 @@ import WindCompass from '../../../components/wind-compass'
 
 const AES_KEY = CryptoJS.enc.Base64.parse('cU81RFoyR00zSlc3TVpPUQ==')
 
+// const OLD_DATA_TS = 3 * 60 * 1e3 // 3m
+const POLL_TS = 15 * 1e3 // 15s
+
 export default function Station({ station }) {
     const router = useRouter()
     const { id } = router.query
@@ -22,20 +26,20 @@ export default function Station({ station }) {
         try {
             const apiRes = await fetch(`/api/kiting-live/observations/latest/v2/${id}`)
             if (apiRes.ok) {
-                const apiData = await apiRes.text()
+                const _apiData = await apiRes.text()
 
-                const ciphertext = CryptoJS.enc.Base64.parse(apiData)
+                const ciphertext = CryptoJS.enc.Base64.parse(_apiData)
                 const wordArray = CryptoJS.AES.decrypt({ ciphertext }, AES_KEY, { mode: CryptoJS.mode.ECB })
-                const _apiData = JSON.parse(wordArray.toString(CryptoJS.enc.Utf8))
+                const apiData = JSON.parse(wordArray.toString(CryptoJS.enc.Utf8))
 
-                setData(_apiData)
+                setData(apiData)
             }
         } catch (err) {
             console.error(err)
         }
     }, [id])
 
-    usePoll(pollCb, 5e3)
+    usePoll(pollCb, POLL_TS)
 
     return (
         <div className={styles.container}>
@@ -58,7 +62,17 @@ export default function Station({ station }) {
                 <span>kt</span>
             </h3>
 
-            <p className={styles.timestamp}>{data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}</p>
+            <h3 className={styles.temperature}>
+                {data?.temperature?.toFixed(1) ?? '--'}
+                <span>&#8451;</span>
+                &nbsp;
+                {data?.humidityPercent?.toFixed(0) ?? '--'}
+                <span>&#37;H</span>
+            </h3>
+
+            <p className={clsx(styles.timestamp, { [styles.old]: false })}>
+                {data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}
+            </p>
         </div>
     )
 }
