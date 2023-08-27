@@ -21,9 +21,7 @@ export default function Home({ stations }) {
                     <ul>
                         {stations?.map(({ id, name }) => (
                             <li key={id}>
-                                <Link href={`/station/${id}`}>
-                                    <a>{name}</a>
-                                </Link>
+                                <Link href={`/station/${id}`}>{name}</Link>
                             </li>
                         ))}
                     </ul>
