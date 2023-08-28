@@ -23,7 +23,11 @@
 .windSpeed span {
     color: #9c9c9c;
     font-size: 50%;
-    padding: 0 0.3em;
+    padding: 0 0.2em;
+    margin-left: 0.2em;
+    border-radius: 0.1em;
+    outline: #dddddd 3px dashed;
+    vertical-align: middle;
 }
 
 .gustSpeed {
