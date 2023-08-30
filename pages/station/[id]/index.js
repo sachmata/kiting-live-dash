@@ -14,8 +14,9 @@ import useLocalStorage from '../../../components/use-local-storage'
 
 const AES_KEY = CryptoJS.enc.Base64.parse('cU81RFoyR00zSlc3TVpPUQ==')
 
-// const OLD_DATA_TS = 3 * 60 * 1e3 // 3m
-const POLL_TS = 15 * 1e3 // 15s
+const POLL_DATA_TS = 20 * 1e3 // 20s
+const POLL_OLD_DATA_TS = 7 * 1e3 // 7s
+const OLD_DATA_TS = 3 * 60 * 1e3 // 3m
 
 const KTS2MPS = 0.514444
 
@@ -24,14 +25,11 @@ export default function Station({ station }) {
     const { id } = router.query
 
     const [mps, setMps] = useLocalStorage('mps', false)
-
-    const toggleMps = useCallback(() => {
-        setMps((mps) => !mps)
-    }, [setMps])
+    const toggleMps = useCallback(() => setMps((mps) => !mps), [setMps])
 
     const [data, setData] = useState(null)
 
-    const pollCb = useCallback(async () => {
+    const pollDataCb = useCallback(async () => {
         try {
             const apiRes = await fetch(`/api/kiting-live/observations/latest/v2/${id}`)
             if (apiRes.ok) {
@@ -41,14 +39,28 @@ export default function Station({ station }) {
                 const wordArray = CryptoJS.AES.decrypt({ ciphertext }, AES_KEY, { mode: CryptoJS.mode.ECB })
                 const apiData = JSON.parse(wordArray.toString(CryptoJS.enc.Utf8))
 
-                setData(apiData)
+                setData({ ...apiData, old: false })
             }
         } catch (err) {
             console.error(err)
         }
     }, [id])
 
-    usePoll(pollCb, POLL_TS)
+    usePoll(pollDataCb, POLL_DATA_TS)
+
+    const pollDataOldCb = useCallback(() => {
+        setData((data) => {
+            const now = Date.now()
+            const dataTs = data?.timestamp ? new Date(data.timestamp) : null
+            if (dataTs && now - dataTs > OLD_DATA_TS && !data.old) {
+                return { ...data, old: true }
+            }
+
+            return data
+        })
+    }, [])
+
+    usePoll(pollDataOldCb, POLL_OLD_DATA_TS)
 
     return (
         <div className={styles.container}>
@@ -59,10 +71,6 @@ export default function Station({ station }) {
             {/* <h1 className={styles.name}>{station.name}</h1> */}
 
             <WindCompass directionDegrees={data?.windDirectionDegrees} />
-
-            {/* <button className="toggle" onClick={toggleMps}>
-                {data ? (mps ? 'kts' : 'm/s') : ''}
-            </button> */}
 
             <h2 className={styles.windSpeed}>
                 {data?.windSpeedKnots ? (data.windSpeedKnots * (mps ? KTS2MPS : 1)).toFixed(1) : '--'}
@@ -83,7 +91,7 @@ export default function Station({ station }) {
                 <span>&#37;H</span>
             </h3>
 
-            <p className={clsx(styles.timestamp, { [styles.old]: false })}>
+            <p className={clsx(styles.timestamp, { [styles.old]: data?.old })}>
                 {data?.timestamp ? new Date(data.timestamp).toLocaleString() : ''}
             </p>
         </div>

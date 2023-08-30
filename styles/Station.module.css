@@ -16,7 +16,7 @@
 
 .windSpeed {
     text-align: center;
-    font-size: 18vh;
+    font-size: 16vh;
     margin: 0;
 }
 
@@ -28,11 +28,12 @@
     border-radius: 0.1em;
     outline: #dddddd 3px dashed;
     vertical-align: middle;
+    cursor: pointer;
 }
 
 .gustSpeed {
     text-align: center;
-    font-size: 9vh;
+    font-size: 8vh;
     margin: 0;
 }
 
@@ -55,7 +56,7 @@
 }
 
 .timestamp {
-    font-size: 4vh;
+    font-size: 3vh;
     margin: 3vh 0;
     color: #9c9c9c;
 }
