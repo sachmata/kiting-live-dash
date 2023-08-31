@@ -45,7 +45,7 @@
 
 .temperature {
     text-align: center;
-    font-size: 5vh;
+    font-size: 8vh;
     margin: 0;
 }
 
@@ -57,7 +57,7 @@
 
 .timestamp {
     font-size: 3vh;
-    margin: 3vh 0;
+    margin: 1vh 0;
     color: #9c9c9c;
 }
 
